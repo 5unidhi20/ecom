@@ -1,5 +1,6 @@
 package com.capstone.ecom.filters;
 
+
 import com.capstone.ecom.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,9 +20,14 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    private final UserDetailsServiceImpl userDetailsService;
+    private final com.capstone.ecom.jwt.UserDetailsServiceImpl userDetailsService;
 
     private final JwtUtil jwtUtil;
+
+    public JwtRequestFilter(com.capstone.ecom.jwt.UserDetailsServiceImpl userDetailsService, JwtUtil jwtUtil) {
+        this.userDetailsService = userDetailsService;
+        this.jwtUtil = jwtUtil;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -36,7 +42,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsSerService.loadUserByUsername(username);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(token, userDetails)) { // Add token validation check
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
